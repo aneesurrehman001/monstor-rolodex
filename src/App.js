@@ -1,25 +1,48 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState, useEffect } from "react";
+import CardList from "./components/card-list/card-list.component";
+import SearchBox from "./components/search-box/search-box.component";
+import "./App.css";
 
-function App() {
+const App = () => {
+  // useState() gives us back an array of two values fist value is the value we want to store and the second value is going to be a set of a function.
+  console.log("rendering");
+  const [serchField, setSearchField] = useState(""); // [value, setValue]
+  const [monsters, setMonsters] = useState([]);
+  const [filteredMonsters, setFilteredMonsters] = useState(monsters);
+  console.log({ serchField });
+
+  useEffect(() => {
+    //console.log("useEffect");
+    fetch("https://jsonplaceholder.typicode.com/users")
+      .then((response) => response.json())
+      .then((monsters) => {
+        setMonsters(monsters);
+      });
+  }, []);
+
+  const onSearchChange = (event) => {
+    console.log("onSearchChange function called");
+    const serchFieldString = event.target.value.toLowerCase();
+    setSearchField(serchFieldString);
+  };
+  useEffect(() => {
+    const newFilteredMonsters = monsters.filter((monster) => {
+      return monster.name.toLowerCase().includes(serchField);
+    });
+    setFilteredMonsters(newFilteredMonsters);
+  }, [monsters, serchField]);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1 className="app-title">Monstors Rolodex</h1>
+      <SearchBox
+        className="search-box"
+        onChangeHandler={onSearchChange}
+        placeholder="search box"
+      />
+      <CardList monsters={filteredMonsters} />
     </div>
   );
-}
+};
 
 export default App;
